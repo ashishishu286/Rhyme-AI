@@ -1,0 +1,12 @@
+# Virtual Environment
+.venv/
+
+# PyCharm
+.idea/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# CMU dictionary file (large file)
+cmudict.dict
