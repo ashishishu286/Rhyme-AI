@@ -1,3 +1,4 @@
+import re
 from cmu_loader import load_cmu_dict
 phoneme_list = load_cmu_dict()
 
@@ -31,7 +32,7 @@ def extract_rhyme_part(phoneme_list):
 rhymeDict = extract_rhyme_part(phoneme_list)
 
 def get_rhymes(word):
-    word = word.lower()
+    word = re.sub(r'[^a-z]', '', word.lower())
     pronounciations = phoneme_list.get(word)
     if not pronounciations:
         print("Sorry, this word is not present in the dictionary")
@@ -43,9 +44,6 @@ def get_rhymes(word):
                 continue
             wordKey = " ".join(phenome[index:])
             for x in rhymeDict.get(wordKey, []):
-                if x==word:
-                    continue
-                ans.add(x)
-        print(ans)
-
-get_rhymes("merchandise")
+                if x!=word:
+                    ans.add(x)
+        return sorted(ans)
