@@ -1,32 +1,51 @@
 from cmu_loader import load_cmu_dict
 phoneme_list = load_cmu_dict()
 
+def find_last_stressed_vowel(phenome):
+    index = len(phenome)-1
+    for x in range(index, -1, -1):
+        if phenome[x].endswith(("1","2")):
+            return x
+    return -1
+
 def extract_rhyme_part(phoneme_list):
     rhyme_words = {}
 
-    for x in phoneme_list:
-        clean_word = x.split("(")[0]
+    for word, pronunciations in phoneme_list.items():
+        for phonemes in pronunciations:
+            index = find_last_stressed_vowel(phonemes)
 
-        for parts in phoneme_list[x]:
-            ind = len(parts)-1
-            found = False
-            for y in range(ind, -1, -1):
-                if parts[y].endswith(("1", "2")):
-                    ind = y
-                    found = True
-                    break
-
-            if not found:
+            if index == -1:
                 continue
 
-            phonemeKey = " ".join(parts[ind:]) # cleaner and faster instead of phonemeKey += part
+            phoneme_key = " ".join(phonemes[index:])
 
-            if phonemeKey in rhyme_words:
-                rhyme_words[phonemeKey].append(clean_word)
-            else:
-                rhyme_words[phonemeKey] = [clean_word]  #underdstand it
+            if phoneme_key not in rhyme_words:
+                rhyme_words[phoneme_key] = []
+
+            rhyme_words[phoneme_key].append(word)
 
     return rhyme_words
 
 
-extract_rhyme_part(phoneme_list)
+rhymeDict = extract_rhyme_part(phoneme_list)
+
+def get_rhymes(word):
+    word = word.lower()
+    pronounciations = phoneme_list.get(word)
+    if not pronounciations:
+        print("Sorry, this word is not present in the dictionary")
+    else:
+        ans = set()
+        for phenome in pronounciations:
+            index = find_last_stressed_vowel(phenome)
+            if index == -1:
+                continue
+            wordKey = " ".join(phenome[index:])
+            for x in rhymeDict.get(wordKey, []):
+                if x==word:
+                    continue
+                ans.add(x)
+        print(ans)
+
+get_rhymes("merchandise")

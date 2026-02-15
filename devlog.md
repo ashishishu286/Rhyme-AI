@@ -25,7 +25,7 @@ Build a function to load and parse the CMU Pronouncing Dictionary into a structu
   ```python
   word = parts[0].split("(")[0].lower()
 
-
+---
 ## Day 2 – Rhyme Extraction Engine & Git Workflow Setup
 
 ### Objective
