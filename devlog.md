@@ -84,4 +84,90 @@ Implement stress-based rhyme extraction logic using CMU phoneme data and establi
 - Functional stress-based rhyme indexing engine.
 - Clean project structure with version control.
 - Public GitHub repository reflecting structured development progress.
+---
+
+# Devlog — Day 4
+
+## Goal  
+Upgrade the rhyme engine from exact suffix matching to similarity-based scoring.
+
+## What I Built  
+- Implemented `rhyme_score(p1, p2)`  
+- Designed sliding-window phoneme alignment  
+- Enabled relaxed rhyme detection (≥ 2 phoneme matches)  
+- Built `get_similar_rhymes(word)`  
+- Kept exact rhyme engine (v1) intact alongside similarity engine (v2)
+
+## Key Concepts Learned  
+- Difference between strict suffix matching and relaxed alignment  
+- Sliding window comparison for sequence similarity  
+- Handling variable-length phoneme segments  
+- Separating scoring logic from threshold logic  
+
+## Problems Faced  
+- Incorrect suffix alignment (e.g., smoke vs stoked mismatch)  
+- Overcomplicated index logic  
+- Confusion between strict vs relaxed rhyme rules  
+
+## Solutions Implemented  
+- Rewrote scoring using sliding-window alignment  
+- Debugged phoneme trimming using manual inspection  
+- Refactored scoring to return numeric values instead of boolean  
+
+## Outcome  
+The engine now supports:
+- Exact rhyme detection  
+- Similarity-based phonetic matching  
+- Threshold-driven rhyme scoring  
+
+Core phonetic engine layer completed.
+
+
+---
+
+# Devlog — Day 5
+
+## Goal  
+Move from word-level rhyme lookup to line-level rhyme detection.
+
+## What I Built  
+- Implemented `analyze_line(line)`  
+- Normalized and tokenized input text  
+- Extracted rhyme segments for each word  
+- Properly handled multiple pronunciations  
+- Compared word pairs using similarity scoring  
+- Returned rhyming word pairs within a line  
+
+### Example
+
+Input:
+"I smoke fire while the mic gets stoked"
+
+Output:
+{('smoke', 'stoked')}
+
+## Key Concepts Learned  
+- Managing multi-pronunciation dictionary structures  
+- Pairwise comparison logic (O(k²) for line words)  
+- Proper dictionary-to-list conversion for indexed comparison  
+- Early-exit optimization during pronunciation matching  
+
+## Problems Faced  
+- Overwriting pronunciations instead of storing multiple  
+- Incorrect dictionary iteration logic  
+- Handling missing stress cases  
+
+## Solutions Implemented  
+- Stored trimmed phoneme segments as lists per word  
+- Converted dictionary items to list for controlled indexing  
+- Added stress-index validation guards  
+
+## Outcome  
+The engine now supports:
+- Word-level rhyme lookup  
+- Similarity-based rhyme scoring  
+- Internal rhyme detection within a line  
+
+Project has transitioned from a rhyme lookup tool to a functional rhyme analysis system.
+
 

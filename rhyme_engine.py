@@ -95,3 +95,40 @@ def get_similar_rhymes(word):
                     ans.add(cmuWord)
 
     return sorted(ans)
+
+def analyze_line(line):
+    words = line.split()
+    lineDict = {}
+    for word in words:
+        word = re.sub(r'[^a-z]', '', word.lower())
+        wordPhonemes = cmu_dict.get(word)
+        if not wordPhonemes:
+            continue
+        for wordPhoneme in wordPhonemes:
+            wordLastStressedIndex = find_last_stressed_vowel(wordPhoneme)
+            if wordLastStressedIndex == -1:
+                continue
+            wordPhoneme = wordPhoneme[wordLastStressedIndex:]
+            if word not in lineDict:
+                lineDict[word] = []
+            lineDict[word].append(wordPhoneme)
+    items = list(lineDict.items())
+    ans = set()
+
+    for i in range(len(items) - 1):
+        word1, segs1 = items[i]
+        for j in range(i + 1, len(items)):
+            word2, segs2 = items[j]
+            found = False
+            for pseg1 in segs1:
+                for pseg2 in segs2:
+                    if rhyme_score(pseg1, pseg2) >= 2:
+                        ans.add((word1, word2))
+                        found = True
+                        break
+                if found:
+                    break
+
+    return ans
+
+print(analyze_line("I smoke fire while the mic gets stoked"))
