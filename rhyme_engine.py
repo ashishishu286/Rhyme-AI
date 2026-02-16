@@ -76,26 +76,18 @@ def rhyme_score(p1, p2):
 def get_similar_rhymes(word):
     word = re.sub(r'[^a-z]', '', word.lower())
     phoneme = cmu_dict.get(word)
-    if not phoneme:
-        print("Word not present in dictionary")
     ans = set()
     for pronunciation in phoneme:
         lastStressIndex = find_last_stressed_vowel(pronunciation)
         if(lastStressIndex==-1):
             continue
         trimmedPhoneme = pronunciation[lastStressIndex:]
-        print("SMOKE RAW:", cmu_dict.get("smoke"))
-        print("WORD:", word)
-        print("TRIMMED:", trimmedPhoneme)
         for cmuWord, cmuPronunciations in cmu_dict.items():
             for cmuPronunciation in cmuPronunciations:
                 cmuLastStressIndex = find_last_stressed_vowel(cmuPronunciation)
                 if (cmuLastStressIndex == -1):
                     continue
                 cmuTrimmedPhoneme = cmuPronunciation[cmuLastStressIndex:]
-                if cmuWord == "smoke":
-                    print("RAW:", cmuPronunciation)
-                    print("TRIMMED:", cmuTrimmedPhoneme)
                 score = rhyme_score(trimmedPhoneme, cmuTrimmedPhoneme)
                 if score>=2:
                     if cmuWord == word:
@@ -103,5 +95,3 @@ def get_similar_rhymes(word):
                     ans.add(cmuWord)
 
     return sorted(ans)
-
-print(get_similar_rhymes("stoked"))
