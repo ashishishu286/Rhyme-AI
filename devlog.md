@@ -170,4 +170,55 @@ The engine now supports:
 
 Project has transitioned from a rhyme lookup tool to a functional rhyme analysis system.
 
+---
+
+# Devlog — Day 6
+
+## Goal  
+Move from pair-based rhyme detection to structured rhyme grouping within a line.
+
+## What I Built  
+- Designed and implemented `rhyme_section(p1, p2)` to extract the actual matched phoneme segment between two words.
+- Shifted grouping logic from pair connectivity to shared phonetic overlap.
+- Used matched phoneme segment (e.g., `"IH1 L"`) as a grouping key.
+- Built clustering logic inside `analyze_line(line)` using a dictionary:
+  - Key → matched rhyme segment  
+  - Value → set of words sharing that segment
+- Returned structured rhyme clusters instead of raw pairs.
+
+## Example
+
+- Input: "Chin checker chinchilla till it was filler"
+- Output:
+[['chinchilla', 'till', 'filler']]
+- Instead of:
+{('chinchilla','till'), ('chinchilla','filler'), ('till','filler')}
+
+
+## Key Concepts Learned  
+- Difference between pair-based grouping and segment-based clustering  
+- Why phonetic overlap is a better grouping key than graph traversal for rhyme detection  
+- Importance of returning structured data instead of intermediate representations  
+- Using dictionary keys derived from computed phoneme segments  
+
+## Problems Faced  
+- Initially storing phoneme segments instead of words in clusters  
+- Forgetting to initialize dictionary keys before appending  
+- Redundant calls to `rhyme_score` and `rhyme_section`  
+- Handling multiple pronunciations cleanly  
+
+## Solutions Implemented  
+- Modified `rhyme_section` to return the best matched phoneme segment  
+- Used `" ".join(segment)` as cluster key  
+- Stored grouped words in sets to avoid duplicates  
+- Converted final dictionary values into list format for clean output  
+
+## Outcome  
+The engine now supports:
+- Word-level rhyme lookup  
+- Similarity-based scoring  
+- Line-level rhyme detection  
+- Structured rhyme grouping based on shared phonetic segments  
+
+Project has evolved from detecting rhyme pairs to producing meaningful rhyme clusters suitable for highlighting and UI integration.
 

@@ -96,6 +96,37 @@ def get_similar_rhymes(word):
 
     return sorted(ans)
 
+def rhyme_section(p1, p2):
+    if len(p1) <= len(p2):
+        shorter = p1
+        longer = p2
+    else:
+        shorter = p2
+        longer = p1
+
+    max_score = 0
+    n = len(shorter)
+    m = len(longer)
+
+    best_segment = []
+
+    for start in range(m - n + 1):
+        score = 0
+        temp = []
+
+        for i in range(n):
+            if shorter[i] == longer[start + i]:
+                score += 1
+                temp.append(shorter[i])
+            else:
+                break
+
+        if score > max_score:
+            max_score = score
+            best_segment = temp
+
+    return best_segment
+
 def analyze_line(line):
     words = line.split()
     lineDict = {}
@@ -113,7 +144,7 @@ def analyze_line(line):
                 lineDict[word] = []
             lineDict[word].append(wordPhoneme)
     items = list(lineDict.items())
-    ans = set()
+    ans = {}
 
     for i in range(len(items) - 1):
         word1, segs1 = items[i]
@@ -122,13 +153,16 @@ def analyze_line(line):
             found = False
             for pseg1 in segs1:
                 for pseg2 in segs2:
-                    if rhyme_score(pseg1, pseg2) >= 2:
-                        ans.add((word1, word2))
+                    segment = rhyme_section(pseg1, pseg2)
+                    if len(segment) >= 2:
+                        key = " ".join(segment)
+                        if key not in ans:
+                            ans[key] = set()
+                        ans[key].add(word1)
+                        ans[key].add(word2)
                         found = True
                         break
                 if found:
                     break
 
-    return ans
-
-print(analyze_line("I smoke fire while the mic gets stoked"))
+    return [list(group) for group in ans.values()]A
