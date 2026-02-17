@@ -165,4 +165,4 @@ def analyze_line(line):
                 if found:
                     break
 
-    return [list(group) for group in ans.values()]A
+    return [list(group) for group in ans.values()]
