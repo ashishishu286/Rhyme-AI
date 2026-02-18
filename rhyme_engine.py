@@ -166,3 +166,37 @@ def analyze_line(line):
                     break
 
     return [list(group) for group in ans.values()]
+
+def weighted_rhyme_section(p1, p2):
+    p1LastStressedVowel = find_last_stressed_vowel(p1)
+    p2LastStressedVowel = find_last_stressed_vowel(p2)
+    p1 = p1[p1LastStressedVowel:]
+    p2 = p2[p2LastStressedVowel:]
+    max_score = 0
+    bestSegment = []
+    if p1[0] != p2[0]:
+        return bestSegment, max_score
+    if(len(p1)>len(p2)):
+        longer = p1
+        shorter = p2
+    else:
+        longer = p2
+        shorter = p1
+    offset = len(longer) - len(shorter)
+    for start in range(offset+1):
+        score = 0
+        tempList = []
+        for i in range(len(shorter)):
+            if shorter[i] == longer[start+i]:
+                phoneme = shorter[i]
+                tempList.append(phoneme)
+                if phoneme.endswith(('1', '2')):
+                    score += 3
+                elif phoneme.endswith('0'):
+                    score += 2
+                else:
+                    score += 1
+        if score > max_score:
+            max_score = score
+            bestSegment = tempList
+    return bestSegment, max_score
