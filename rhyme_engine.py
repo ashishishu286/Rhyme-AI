@@ -198,12 +198,35 @@ def analyze_line(line):
                     if score >= 4:
                         key = " ".join(segment)
                         if key not in ans:
-                            ans[key] = set()
-                        ans[key].add(word1)
-                        ans[key].add(word2)
+                            ans[key] = {
+                                "words": set(),
+                                "score": score
+                            }
+                        else:
+                            ans[key]["score"] = max(ans[key]["score"], score)
+                        ans[key]["words"].add(word1)
+                        ans[key]["words"].add(word2)
                         found = True
                         break
                 if found:
                     break
 
-    return [list(group) for group in ans.values()]
+    result = {}
+
+    for key, data in ans.items():
+        score = data["score"]
+
+        if score >= 6:
+            strength = "strong"
+        elif score >= 4:
+            strength = "medium"
+        else:
+            strength = "weak"
+
+        result[key] = {
+            "words": sorted(data["words"]),
+            "strength": strength,
+            "score": score
+        }
+
+    return result
