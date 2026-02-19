@@ -127,46 +127,6 @@ def rhyme_section(p1, p2):
 
     return best_segment
 
-def analyze_line(line):
-    words = line.split()
-    lineDict = {}
-    for word in words:
-        word = re.sub(r'[^a-z]', '', word.lower())
-        wordPhonemes = cmu_dict.get(word)
-        if not wordPhonemes:
-            continue
-        for wordPhoneme in wordPhonemes:
-            wordLastStressedIndex = find_last_stressed_vowel(wordPhoneme)
-            if wordLastStressedIndex == -1:
-                continue
-            wordPhoneme = wordPhoneme[wordLastStressedIndex:]
-            if word not in lineDict:
-                lineDict[word] = []
-            lineDict[word].append(wordPhoneme)
-    items = list(lineDict.items())
-    ans = {}
-
-    for i in range(len(items) - 1):
-        word1, segs1 = items[i]
-        for j in range(i + 1, len(items)):
-            word2, segs2 = items[j]
-            found = False
-            for pseg1 in segs1:
-                for pseg2 in segs2:
-                    segment = rhyme_section(pseg1, pseg2)
-                    if len(segment) >= 2:
-                        key = " ".join(segment)
-                        if key not in ans:
-                            ans[key] = set()
-                        ans[key].add(word1)
-                        ans[key].add(word2)
-                        found = True
-                        break
-                if found:
-                    break
-
-    return [list(group) for group in ans.values()]
-
 def weighted_rhyme_section(p1, p2):
     p1Last = find_last_stressed_vowel(p1)
     p2Last = find_last_stressed_vowel(p2)
@@ -207,3 +167,43 @@ def weighted_rhyme_section(p1, p2):
             bestSegment = tempList
 
     return bestSegment, max_score
+
+def analyze_line(line):
+    words = line.split()
+    lineDict = {}
+    for word in words:
+        word = re.sub(r'[^a-z]', '', word.lower())
+        wordPhonemes = cmu_dict.get(word)
+        if not wordPhonemes:
+            continue
+        for wordPhoneme in wordPhonemes:
+            wordLastStressedIndex = find_last_stressed_vowel(wordPhoneme)
+            if wordLastStressedIndex == -1:
+                continue
+            wordPhoneme = wordPhoneme[wordLastStressedIndex:]
+            if word not in lineDict:
+                lineDict[word] = []
+            lineDict[word].append(wordPhoneme)
+    items = list(lineDict.items())
+    ans = {}
+
+    for i in range(len(items) - 1):
+        word1, segs1 = items[i]
+        for j in range(i + 1, len(items)):
+            word2, segs2 = items[j]
+            found = False
+            for pseg1 in segs1:
+                for pseg2 in segs2:
+                    segment, score = weighted_rhyme_section(pseg1, pseg2)
+                    if score >= 4:
+                        key = " ".join(segment)
+                        if key not in ans:
+                            ans[key] = set()
+                        ans[key].add(word1)
+                        ans[key].add(word2)
+                        found = True
+                        break
+                if found:
+                    break
+
+    return [list(group) for group in ans.values()]
