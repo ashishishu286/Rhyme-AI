@@ -170,47 +170,67 @@ def weighted_rhyme_section(p1, p2):
 
 def analyze_line(line):
     words = line.split()
-    lineDict = {}
+    instances = []
+
+    # Build token instances (duplicates preserved)
     for word in words:
-        word = re.sub(r'[^a-z]', '', word.lower())
-        wordPhonemes = cmu_dict.get(word)
+        clean = re.sub(r'[^a-z]', '', word.lower())
+        wordPhonemes = cmu_dict.get(clean)
         if not wordPhonemes:
             continue
-        for wordPhoneme in wordPhonemes:
-            wordLastStressedIndex = find_last_stressed_vowel(wordPhoneme)
-            if wordLastStressedIndex == -1:
-                continue
-            wordPhoneme = wordPhoneme[wordLastStressedIndex:]
-            if word not in lineDict:
-                lineDict[word] = []
-            lineDict[word].append(wordPhoneme)
-    items = list(lineDict.items())
-    ans = {}
 
-    for i in range(len(items) - 1):
-        word1, segs1 = items[i]
-        for j in range(i + 1, len(items)):
-            word2, segs2 = items[j]
+        segments = []
+        for phoneme in wordPhonemes:
+            idx = find_last_stressed_vowel(phoneme)
+            if idx == -1:
+                continue
+            segments.append(phoneme[idx:])
+
+        if segments:
+            instances.append({
+                "word": clean,
+                "segments": segments
+            })
+    print(instances)
+
+    ans = {}
+    pair_count = 0
+
+    # Token-based pair comparison
+    for i in range(len(instances) - 1):
+        word1 = instances[i]["word"]
+        segs1 = instances[i]["segments"]
+
+        for j in range(i + 1, len(instances)):
+            word2 = instances[j]["word"]
+            segs2 = instances[j]["segments"]
+
             found = False
+
             for pseg1 in segs1:
                 for pseg2 in segs2:
                     segment, score = weighted_rhyme_section(pseg1, pseg2)
+
                     if score >= 4:
+                        pair_count += 1
                         key = " ".join(segment)
+
                         if key not in ans:
                             ans[key] = {
-                                "words": set(),
+                                "words": [],
                                 "score": score
                             }
                         else:
                             ans[key]["score"] = max(ans[key]["score"], score)
-                        ans[key]["words"].add(word1)
-                        ans[key]["words"].add(word2)
+
+                        # store actual pair occurrence
+                        ans[key]["words"].append((word1, word2))
+
                         found = True
                         break
                 if found:
                     break
-
+    print(ans)
     result = {}
 
     for key, data in ans.items():
@@ -224,9 +244,21 @@ def analyze_line(line):
             strength = "weak"
 
         result[key] = {
-            "words": sorted(data["words"]),
+            "pairs": data["words"],   # list of pair occurrences
             "strength": strength,
             "score": score
         }
 
-    return result
+    n = len(instances)
+
+    return result, pair_count, n
+
+def rhyme_density(line):
+    clusters, pair_count, n = analyze_line(line)
+
+    if n < 2:
+        return 0
+
+    total_possible_pairs = (n * (n - 1)) / 2
+
+    return pair_count / total_possible_pairs

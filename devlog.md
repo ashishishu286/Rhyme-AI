@@ -222,3 +222,63 @@ The engine now supports:
 
 Project has evolved from detecting rhyme pairs to producing meaningful rhyme clusters suitable for highlighting and UI integration.
 
+---
+
+# Devlog — Day 7
+
+## Goal  
+Improve rhyme quality by introducing stress-aware weighted scoring and rhyme strength classification.
+
+## What I Built  
+- Implemented `weighted_rhyme_section(p1, p2)`  
+- Enforced stressed vowel equality before scoring  
+- Designed weighted phoneme scoring:
+  - Stressed vowel (`1`/`2`) → +3  
+  - Unstressed vowel (`0`) → +2  
+  - Consonant → +1  
+- Kept sliding-window alignment logic  
+- Modified `analyze_line` to:
+  - Use weighted scoring
+  - Apply stricter threshold (`score >= 4`)
+  - Store maximum score per rhyme segment
+  - Classify rhyme strength (`strong`, `medium`, `weak`)
+
+## Example
+
+Input: "Chin checker chinchilla till it was filler shin tin sin"
+
+Output: { 'IH1 N': { 'words': ['chin', 'shin', 'sin', 'tin'], 'strength': 'medium', 'score': 4 }, 'IH1 L': { 'words': ['chinchilla', 'filler', 'till'], 'strength': 'medium', 'score': 4 } }
+
+
+## Key Concepts Learned  
+- Importance of stressed vowel enforcement in phonetic rhyme detection  
+- Difference between length-based similarity and weighted phonetic scoring  
+- Designing scoring systems that reflect linguistic strength  
+- Separating structural overlap (segment) from quantitative strength (score)  
+
+## Problems Faced  
+- Handling sliding-window alignment with weighted scoring  
+- Ensuring stress validation does not conflict with window shifting  
+- Preventing weak vowel-only rhymes from polluting clusters  
+- Managing multiple rhyme occurrences per segment  
+
+## Solutions Implemented  
+- Added early rejection if stressed vowels mismatch  
+- Introduced weighted scoring instead of uniform increment  
+- Increased threshold to reduce weak matches  
+- Stored maximum score per rhyme segment to maintain consistency  
+
+## Outcome  
+The rhyme engine is now:
+- Stress-aware  
+- Weight-sensitive  
+- Producing cleaner rhyme clusters  
+- Classifying rhyme strength numerically  
+
+Project now includes:
+- Exact rhyme detection  
+- Similarity-based scoring  
+- Line-level clustering  
+- Stress-aware weighted rhyme strength classification  
+
+This significantly improves phonetic accuracy and prepares the system for quantitative rhyme analysis (e.g., rhyme density metrics).
