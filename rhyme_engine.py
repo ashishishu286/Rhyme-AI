@@ -191,7 +191,6 @@ def analyze_line(line):
                 "word": clean,
                 "segments": segments
             })
-    print(instances)
 
     ans = {}
     pair_count = 0
@@ -230,7 +229,6 @@ def analyze_line(line):
                         break
                 if found:
                     break
-    print(ans)
     result = {}
 
     for key, data in ans.items():
