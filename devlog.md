@@ -282,3 +282,42 @@ Project now includes:
 - Stress-aware weighted rhyme strength classification  
 
 This significantly improves phonetic accuracy and prepares the system for quantitative rhyme analysis (e.g., rhyme density metrics).
+
+---
+
+# Devlog — Day 9
+
+## Goal
+Add pair-level rhyme strength metrics to `analyze_line()`.
+
+## What I Built
+- Added `total_score_sum`, `strong_count`, `medium_count` tracking inside the pair detection loop
+- Computed three new metrics:
+  - `avg_score` — mean weighted score across all rhyming pairs
+  - `strong_ratio` — fraction of pairs scoring ≥ 6
+  - `medium_ratio` — fraction of pairs scoring 4–5
+- Added division-by-zero guard for lines with no rhyming pairs
+- Updated `rhyme_density()` to unpack the new 6-value return from `analyze_line()`
+
+## Problems Faced
+- Initially used `total_score_sum += 1` instead of `+= score`, which would have made avg_score always ~1
+- Placed `medium_count` increment in a wrong branch (`score >= 3`), counting non-rhyme pairs as medium
+- `rhyme_density()` still unpacked 3 values after `analyze_line()` was changed to return 6 — would have crashed
+
+## Solutions Implemented
+- Accumulate actual `score` value, not 1
+- Medium count goes in the `else` of `score >= 6`, inside the `score >= 4` block
+- Guard `pair_count == 0` before division
+- Updated all callers of `analyze_line()`
+
+## Outcome
+`analyze_line()` now returns:
+```
+(result, pair_count, n, avg_score, strong_ratio, medium_ratio)
+```
+
+The engine can now distinguish between:
+- A line with many weak rhymes (high density, low avg_score)
+- A line with few strong rhymes (low density, high avg_score)
+
+Prepares the system for flow scoring and verse-level comparison.g
