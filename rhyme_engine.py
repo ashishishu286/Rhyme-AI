@@ -194,6 +194,9 @@ def analyze_line(line):
 
     ans = {}
     pair_count = 0
+    total_score_sum = 0
+    strong_count = 0
+    medium_count = 0
 
     # Token-based pair comparison
     for i in range(len(instances) - 1):
@@ -212,6 +215,11 @@ def analyze_line(line):
 
                     if score >= 4:
                         pair_count += 1
+                        total_score_sum += score
+                        if score >= 6:
+                            strong_count += 1
+                        else:
+                            medium_count += 1
                         key = " ".join(segment)
 
                         if key not in ans:
@@ -249,10 +257,17 @@ def analyze_line(line):
 
     n = len(instances)
 
-    return result, pair_count, n
+    if pair_count!=0:
+        avg_score = total_score_sum / pair_count
+        strong_ratio = strong_count / pair_count
+        medium_ratio = medium_count / pair_count
+    else:
+        return result, pair_count, n, 0, 0, 0
+
+    return result, pair_count, n, avg_score, strong_ratio, medium_ratio
 
 def rhyme_density(line):
-    clusters, pair_count, n = analyze_line(line)
+    clusters, pair_count, n, avg_score, strong_ratio, medium_ratio = analyze_line(line)
 
     if n < 2:
         return 0
