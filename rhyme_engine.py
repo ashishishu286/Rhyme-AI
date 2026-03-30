@@ -329,9 +329,3 @@ def end_rhyme_detector(text, threshold=4):
                 pairs.append((i, j, best_score, segment_key, end_words[i], end_words[j]))
 
     return {"end_words": end_words, "pairs": pairs}
-
-print(end_rhyme_detector("""Two roads diverged in a yellow wood,
-And sorry I could not travel both
-And be one traveler, long I stood
-And looked down one as far as I could
-To where it bent in the undergrowth"""))
