@@ -282,3 +282,52 @@ Project now includes:
 - Stress-aware weighted rhyme strength classification  
 
 This significantly improves phonetic accuracy and prepares the system for quantitative rhyme analysis (e.g., rhyme density metrics).
+
+# Devlog — Day 10 (Multi-Line End Rhyme Detection)
+
+## Goal
+Detect **end rhymes across multiple lines** of a verse/paragraph (line-ending rhymes), as the foundation for rhyme scheme labeling in Day 11.
+
+## What I Built
+- Implemented an end-rhyme detection pipeline that works on a **multi-line string** input.
+- Split verse text into individual lines (`splitlines()`).
+- For each line, extracted a **CMU-valid end word** by scanning tokens from the end and:
+  - normalizing tokens (lowercase + stripping punctuation/non-letters)
+  - falling back to earlier tokens if the last token is not present in CMU
+- For each end word, generated **rhyme segments** by:
+  - iterating over all CMU pronunciations
+  - trimming each pronunciation from the **last stressed vowel** to the end
+- Compared all line pairs `(i, j)` using the rhyme engine:
+  - tried all pronunciation segment combinations for the two end words
+  - selected the **best scoring match** (`best_score`, `best_segment`)
+  - recorded a rhyme pair if `best_score >= threshold` (default threshold = 4)
+
+## Output
+The detector returns:
+- `end_words`: the chosen end word per line (or `None` if no CMU-valid token exists)
+- `pairs`: rhyming line pairs with score + matched phoneme segment key, e.g.
+  - `(i, j, best_score, segment_key, end_word_i, end_word_j)`
+
+This representation is intentionally scheme-agnostic and will feed Day 11’s grouping + letter assignment.
+
+## Problems Faced
+- Initially iterated over the verse string directly, which loops characters instead of lines.
+- Extracted last word by reversing characters, which broke with punctuation and whitespace edge cases.
+- Attempted to call `cmu_dict(word)` instead of `cmu_dict.get(word)`.
+- Tried passing raw CMU pronunciation lists directly into `weighted_rhyme_section` without first trimming from the last stressed vowel.
+- Had duplicated/self comparisons in line pairing logic before switching to `j in range(i+1, ...)`.
+
+## Solutions Implemented
+- Enforced a consistent input format: accept a multi-line string and always call `splitlines()`.
+- Token-based end-word extraction + CMU membership check for robust fallback.
+- Precomputed trimmed pronunciation segments per line to support multiple pronunciations and reduce repeated work.
+- Used a best-match selection strategy across pronunciation combinations to avoid missing rhymes due to pronunciation ambiguity.
+- Compared each line pair once with `(i < j)` iteration.
+
+## Outcome
+End rhymes are now detectable across verses, with:
+- reliable end-word selection
+- stress-aware rhyme segments
+- scored pairwise rhyme matches
+
+Next step (Day 11): convert these rhyme-pairs into rhyme **groups** and assign scheme labels (A/B/C or X).

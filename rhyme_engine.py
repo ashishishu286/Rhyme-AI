@@ -275,3 +275,63 @@ def rhyme_density(line):
     total_possible_pairs = (n * (n - 1)) / 2
 
     return pair_count / total_possible_pairs
+
+def end_rhyme_detector(text, threshold=4):
+    lines = text.splitlines()
+
+    # 1) Extract last CMU-valid word per line (fallback from last token backwards)
+    end_words = []
+    for line in lines:
+        tokens = line.split()
+        chosen = None
+        for tok in reversed(tokens):
+            clean = re.sub(r"[^a-z]", "", tok.lower())
+            if clean and cmu_dict.get(clean):
+                chosen = clean
+                break
+        end_words.append(chosen)
+
+    # 2) Precompute trimmed phoneme segments for each end word (support multiple pronunciations)
+    end_segments = []
+    for w in end_words:
+        if not w:
+            end_segments.append([])
+            continue
+
+        segs = []
+        for pron in cmu_dict[w]:
+            idx = find_last_stressed_vowel(pron)
+            if idx != -1:
+                segs.append(pron[idx:])  # keep stress marker in segment
+        end_segments.append(segs)
+
+    # 3) Compare end segments across lines
+    pairs = []
+    for i in range(len(lines) - 1):
+        if not end_segments[i]:
+            continue
+        for j in range(i + 1, len(lines)):
+            if not end_segments[j]:
+                continue
+
+            best_score = 0
+            best_segment = []
+
+            for s1 in end_segments[i]:
+                for s2 in end_segments[j]:
+                    seg, score = weighted_rhyme_section(s1, s2)
+                    if score > best_score:
+                        best_score = score
+                        best_segment = seg
+
+            if best_score >= threshold:
+                segment_key = " ".join(best_segment)
+                pairs.append((i, j, best_score, segment_key, end_words[i], end_words[j]))
+
+    return {"end_words": end_words, "pairs": pairs}
+
+print(end_rhyme_detector("""Two roads diverged in a yellow wood,
+And sorry I could not travel both
+And be one traveler, long I stood
+And looked down one as far as I could
+To where it bent in the undergrowth"""))
