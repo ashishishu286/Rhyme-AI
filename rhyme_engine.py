@@ -28,8 +28,7 @@ def extract_rhyme_part(cmu_dict):
 
     return rhyme_words
 
-
-rhymeDict = extract_rhyme_part(cmu_dict)
+phonemeToWordDict = extract_rhyme_part(cmu_dict)
 
 def get_rhymes(word):
     word = re.sub(r'[^a-z]', '', word.lower())
@@ -43,7 +42,7 @@ def get_rhymes(word):
             if index == -1:
                 continue
             wordKey = " ".join(phoneme[index:])
-            for x in rhymeDict.get(wordKey, []):
+            for x in phonemeToWordDict.get(wordKey, []):
                 if x != word:
                     ans.add(x)
         return sorted(ans)
@@ -329,3 +328,32 @@ def end_rhyme_detector(text, threshold=4):
                 pairs.append((i, j, best_score, segment_key, end_words[i], end_words[j]))
 
     return {"end_words": end_words, "pairs": pairs}
+
+# def find(x, list):
+#     while list[x]!=x:
+#         x = list[x]
+#     return x
+# def get_rhyme_scheme(text, threshold=4):
+#     dict = end_rhyme_detector(text)
+#     endWordList = dict.get("end_words")
+#     pairs = dict.get("pairs")
+#     parent = []
+#     for i in range(len(endWordList)):
+#         parent.append(i)
+#     for pair in pairs:
+#         i = pair[0]
+#         j = pair[1]
+#         find(i, parent)
+#         find
+#
+#
+#
+# get_rhyme_scheme("""Some say the world will end in fire,
+#   Some say in ice.
+#   From what I've tasted of desire
+#   I hold with those who favor fire.
+#   But if it had to perish twice,
+#   I think I know enough of hate
+#   To say that for destruction ice
+#   Is also great
+#   And would suffice""")
